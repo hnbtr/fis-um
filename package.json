@@ -1,6 +1,6 @@
 {
   "name": "fis-um",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "fis3 for um",
   "main": "index.js",
   "bin": {
@@ -15,6 +15,7 @@
     "fis3-hook-commonjs": "*",
     "fis3-hook-amd": "*",
     "fis3-deploy-skip-packed": "*",
+    "fis3-hook-relative": "*",
     "fis3-postpackager-loader": "*",
     "fis3-parser-less-2.x": "*",
     "fis-optimizer-html-minifier": "*",
