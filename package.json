@@ -1,0 +1,27 @@
+{
+  "name": "fis-um",
+  "version": "0.0.4",
+  "description": "fis3 for um",
+  "main": "index.js",
+  "bin": {
+    "fis-um": "um.js"
+  },
+  "author": "yangtao",
+  "license": "MIT",
+  "dependencies": {
+    "liftoff": "*",
+    "minimist": "*",
+    "fis3": "*",
+    "fis3-hook-commonjs": "*",
+    "fis3-hook-amd": "*",
+    "fis3-deploy-skip-packed": "*",
+    "fis3-postpackager-loader": "*",
+    "fis3-parser-less-2.x": "*",
+    "fis-optimizer-html-minifier": "*",
+    "fis3-parser-replace": "*",
+    "fis3-preprocessor-js-require-css": "*",
+    "fis3-preprocessor-replace": "*",
+    "fis-postprocessor-tpl2js": "*",
+    "fis-parser-extract-inline": "*"
+  }
+}
