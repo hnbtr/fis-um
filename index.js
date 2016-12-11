@@ -32,8 +32,8 @@ module.exports = function (config) {
             parser: fis.plugin('replace', {rules: [{search: /\/rs\//g, replace: "/"}]})
         })
         .match('*.html', {
-            parser: fis.plugin('extract-inline', config, "append")
-            // postpackager: fis.plugin('extract-inline', config, "append")
+            parser: fis.plugin('extract-inline', null, "append"),
+            postpackager: fis.plugin('html-libs', config, "append")
         })
         .match('*.js', {
             isMod: true,
