@@ -32,16 +32,14 @@ module.exports = function (config) {
             parser: fis.plugin('replace', {rules: [{search: /\/rs\//g, replace: "/"}]})
         })
         .match('*.html', {
-            parser: fis.plugin('extract-inline', null, "append"),
-            postpackager: fis.plugin('html-libs', config, "append")
+            parser: fis.plugin('extract-inline', config, "append")
         })
         .match('*.js', {
             isMod: true,
             preprocessor: fis.plugin('js-require-css')
         })
-        .match('global/*.js', {
-            isMod: false,
-            parser: fis.plugin('replace', {rules: [{search: '{config.host}', replace: config.host}]})
+        .match('{global,$lib}/**.js', {
+            isMod: false
         })
         .match('*.{htm,tpl}', {
             isHtmlLike: true,
@@ -60,7 +58,6 @@ module.exports = function (config) {
 
     // APP模式部署规则
     if (config.isApp) {
-
         fis.set('project.files', '*.{html,xml}')
             .hook('relative')
             .match("*", {
