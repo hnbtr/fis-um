@@ -22,7 +22,7 @@ cli.launch({
     try {
         config = require(env.configPath);
     } catch (e) {
-        config = {fis: true};
+        throw new Error('can not find config.js');
     }
     fis = require('../')(config);
 

@@ -1,11 +1,17 @@
 module.exports = function (config) {
-    var fis = require('fis3');
+    var mode = 'default', fis = require('fis3');
+
+    mode = config.mode ? config.mode : mode;
 
     fis.require.prefixes.unshift('fis-um');
     fis.cli.name = 'fis-um';
 
-    if (config.fis)
+    fis.set('project.ignore', ['/config.js']);
+
+    if (mode == 'replace' && config.config) {
+        config.config(fis);
         return fis;
+    }
 
     //一般模式部署规则
     fis.set('project.files', '/*/*/*.html')
@@ -91,6 +97,9 @@ module.exports = function (config) {
                 useHash: false
             });
     }
+
+    if (mode == 'append' && config.config)
+        config.config(fis);
 
     return fis;
 };
