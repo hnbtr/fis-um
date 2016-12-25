@@ -1,6 +1,6 @@
 {
   "name": "fis-um",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "fis3 for um",
   "main": "index.js",
   "bin": {
@@ -20,7 +20,6 @@
     "fis3-parser-less-2.x": "*",
     "fis3-parser-replace": "*",
     "fis3-preprocessor-js-require-css": "*",
-    "fis3-preprocessor-replace": "*",
     "fis-postprocessor-tpl2js": "*",
     "fis-parser-extract-inline": "*"
   }

@@ -13,6 +13,8 @@ module.exports = function (config) {
         return fis;
     }
 
+    var config_str = "'" + JSON.stringify(config) + "'";
+
     //一般模式部署规则
     fis.set('project.files', '/*/*/*.html')
         .hook('amd')
@@ -35,10 +37,12 @@ module.exports = function (config) {
         })
         //各类型资源处理
         .match('*.{html,js,css,less,htm,tpl}', {
-            parser: fis.plugin('replace', {rules: [{search: /\/rs\//g, replace: "/"}]})
+            parser: fis.plugin('replace',
+                {rules: [{search: /\/rs\//g, replace: "/"}, {search: '$$CONFIG', replace: config_str}]}
+            )
         })
         .match('*.html', {
-            parser: fis.plugin('extract-inline', config, "append")
+            parser: fis.plugin('extract-inline', {libs: config.libs}, "append")
         })
         .match('*.js', {
             isMod: true,
