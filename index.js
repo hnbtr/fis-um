@@ -8,66 +8,82 @@ module.exports = function (config) {
 
     fis.set('project.ignore', ['/config.js']);
 
-    if (mode == 'replace' && config.config) {
+    if (mode === 'replace' && config.config) {
         config.config(fis);
         return fis;
     }
 
-    var config_str = "'" + JSON.stringify(config) + "'";
+    var $$config_str = "'" + JSON.stringify(config.$$config || config) + "'";
 
-    //一般模式部署规则
-    fis.set('project.files', '/*/*/*.html')
-        .hook('amd')
-        .match('*', {
-            deploy: [fis.plugin('skip-packed'), fis.plugin('local-deliver', {to: '../'})],
-            release: "/rd/$0"
-        })
-        //打包路径处理
-        .match('/(*)/({_,$})(**)', {
-            release: "/rd/$1/$3"
-        })
-        .match('/(*)/({_,$,})(*)/**.{js,htm,tpl}', {
-            packTo: '/$1/asset/$3.js'
-        })
-        .match('/(*)/({_,$,})(*)/**.{css,less}', {
-            packTo: '/$1/asset/$3.css'
-        })
-        .match('/3rd/**', {
-            packTo: false
-        })
-        //各类型资源处理
-        .match('*.{html,js,css,less,htm,tpl}', {
-            parser: fis.plugin('replace',
-                {rules: [{search: /\/rs\//g, replace: "/"}, {search: '$$CONFIG', replace: config_str}]}
-            )
-        })
-        .match('*.html', {
-            parser: fis.plugin('extract-inline', {libs: config.libs}, "append")
-        })
-        .match('*.js', {
-            isMod: true,
-            preprocessor: fis.plugin('js-require-css')
-        })
-        .match('{global,$lib}/**.js', {
-            isMod: false
-        })
-        .match('*.{htm,tpl}', {
-            isHtmlLike: true,
-            postprocessor: fis.plugin('tpl2js'),
-            rExt: '.js'
-        })
-        .match('*.less', {
-            parser: fis.plugin('less-2.x', null, "append"),
-            rExt: '.css'
-        })
-        .match('::package', {
-            postpackager: fis.plugin('loader', {
-                resourceType: 'amd', useInlineMap: false
+    if (config.isSimple) {
+        fis.set('project.files', '*.html')
+            .match('*', {
+                deploy: [fis.plugin('skip-packed'), fis.plugin('local-deliver', {to: '../'})],
+                release: "/rd/$0"
             })
-        });
+            .match('*.{html,js,css,less,htm,tpl}', {
+                parser: fis.plugin('replace',
+                    {rules: [{search: /\/rs\//g, replace: "/"}, {search: '$$CONFIG', replace: $$config_str}]}
+                )
+            })
+    } else {
+        //一般模式部署规则
+        fis.set('project.files', '/*/*/*.html')
+            .hook('amd')
+            .match('*', {
+                deploy: [fis.plugin('skip-packed'), fis.plugin('local-deliver', {to: '../'})],
+                release: "/rd/$0"
+            })
+            //打包路径处理
+            .match('/(*)/({_,$})(**)', {
+                release: "/rd/$1/$3"
+            })
+            .match('/(*)/({_,$,})(*)/**.{js,htm,tpl}', {
+                packTo: '/$1/asset/$3.js'
+            })
+            .match('/(*)/({_,$,})(*)/**.{css,less}', {
+                packTo: '/$1/asset/$3.css'
+            })
+            .match('/3rd/**', {
+                packTo: false
+            })
+            //各类型资源处理
+            .match('*.{html,js,css,less,htm,tpl}', {
+                parser: fis.plugin('replace',
+                    {rules: [{search: /\/rs\//g, replace: "/"}, {search: '$$CONFIG', replace: $$config_str}]}
+                )
+            })
+            .match('*.html', {
+                parser: fis.plugin('extract-inline', {libs: config.libs_html || config.libs}, "append")
+            })
+            .match('*.shtml', {
+                parser: fis.plugin('extract-inline', {libs: config.libs_shtml}, "append")
+            })
+            .match('*.js', {
+                isMod: true,
+                preprocessor: fis.plugin('js-require-css')
+            })
+            .match('{global,$lib}/**.js', {
+                isMod: false
+            })
+            .match('*.{htm,tpl}', {
+                isHtmlLike: true,
+                postprocessor: fis.plugin('tpl2js'),
+                rExt: '.js'
+            })
+            .match('*.less', {
+                parser: fis.plugin('less-2.x', null, "append"),
+                rExt: '.css'
+            })
+            .match('::package', {
+                postpackager: fis.plugin('loader', {
+                    resourceType: 'amd', useInlineMap: false
+                })
+            });
+    }
 
     // APP模式部署规则
-    if (config.isApp) {
+    if (config.isApp || config.isRelative) {
         fis.set('project.files', '*.{html,xml}')
             .hook('relative')
             .match("*", {
@@ -102,7 +118,7 @@ module.exports = function (config) {
             });
     }
 
-    if (mode == 'append' && config.config)
+    if (mode === 'append' && config.config)
         config.config(fis);
 
     return fis;
