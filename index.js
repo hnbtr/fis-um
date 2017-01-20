@@ -28,7 +28,7 @@ module.exports = function (config) {
             })
     } else {
         //一般模式部署规则
-        fis.set('project.files', '/*/*/*.html')
+        fis.set('project.files', '/*/*/**.html')
             .hook('amd')
             .match('*', {
                 deploy: [fis.plugin('skip-packed'), fis.plugin('local-deliver', {to: '../'})],
