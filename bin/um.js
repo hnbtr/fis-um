@@ -26,8 +26,9 @@ cli.launch({
     }
     fis = require('../')(config);
 
-    if (config.isMin)
-        argv.w = false;
+    config.forEach(function (v) {
+        if (v.minimum) argv.w = false;
+    });
 
     process.title = this.name + ' ' + process.argv.slice(2).join(' ') + ' [ ' + env.cwd + ' ]';
     fis.cli.name = this.name;

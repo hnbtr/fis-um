@@ -1,125 +1,188 @@
-module.exports = function (config) {
-    var mode = 'default', fis = require('fis3');
+// const config = {
+//     entry_files: '/*/**/*.{html,shtml}',
+//     amd: true,
+//     relative: false,
+//     minimum: false,
+//     hash: true,
+//     domain: false,
+//     code_config: {
+//         //API请求默认服务器，例如//api.umsoft.cn
+//         host: '//wx-associator.wb.n.umsoft.cn',
+//     },
+//     not_mod_files: ['{global,$lib}/**.js'],
+//     loader_libs: {
+//         html: ['/3rd/global/web.js']
+//     },
+//     package: [{
+//         files: '/(*)/({_,$,})(*)/**.{js,htm,tpl}',
+//         to: '/$1/asset/$3.js'
+//     }, {
+//         files: '/(*)/({_,$,})(*)/**.{css,less}',
+//         to: '/$1/asset/$3.css'
+//     }, {
+//         files: '/3rd/**',
+//         to: false
+//     }]
+//     replace: [{
+//         files: '*.{html,js}',
+//         rules: [{search: /time/g, 'time'}]
+//     }],
+//     release: [{
+//         files: '*/(*).js',
+//         to: "/rd/assest/$1"
+//     }],
+// }
 
-    mode = config.mode ? config.mode : mode;
+module.exports = function (config) {
+    var fis = require('fis3');
+
+    var _ = require('lodash');
 
     fis.require.prefixes.unshift('fis-um');
     fis.cli.name = 'fis-um';
-
     fis.set('project.ignore', ['/config.js']);
 
-    if (mode === 'replace' && config.config) {
-        config.config(fis);
-        return fis;
+
+    var conf = {
+        entry_files: '*.html',
+        amd: false,
+        relative: false,
+        minimum: false,
+        hash: false,
+        domain: false,
+        loader_libs: {
+            html: [],
+            shtml: []
+        },
+        code_config: {},
+        not_mod_files: [],
+        replace: [],
+        release: [],
+        package: []
+    };
+
+    config.forEach(function (c) {
+        conf = _.extend(conf, c);
+    });
+
+    //处理入口文件
+    fis.set('project.files', conf.entry_files);
+
+    //处理部署相对路径和绝对路径
+    if (config.relative) {
+        fis.hook('relative');
+        fis.match("*", {
+            relative: true,
+            deploy: [fis.plugin('skip-packed'), fis.plugin('local-deliver', {to: '../rd'})],
+            release: "/$0"
+        });
+        fis.match('/(*)/({_,$})(**)', {
+            release: "/$1/$3"
+        });
+    } else {
+        fis.match('*', {
+            deploy: [fis.plugin('skip-packed'), fis.plugin('local-deliver', {to: '../'})],
+            release: "/rd/$0"
+        });
+        fis.match('(*)/({_,$})(**)', {
+            release: "/rd/$1/$3"
+        })
+
     }
 
-    var $$config_str = "'" + JSON.stringify(config.$$config || config) + "'";
+    //处理rs目录路径，code_config文件
+    fis.match('*.{html,js,css,less,htm,tpl}', {
+        parser: fis.plugin('replace', {
+            rules: [{search: /\/rs\//g, replace: "/"}, {
+                search: '$$CODE_CONFIG',
+                replace: "'" + JSON.stringify(conf.code_config || {}) + "'"
+            }]
+        })
+    });
 
-    if (config.isSimple) {
-        fis.set('project.files', '*.html')
-            .match('*', {
-                deploy: [fis.plugin('skip-packed'), fis.plugin('local-deliver', {to: '../'})],
-                release: "/rd/$0"
+    //处理replace
+    if (conf.replace) {
+        conf.replace.forEach(function (v) {
+            fis.match(v.files, {
+                parser: fis.plugin('replace', {rules: v.rules}, 'append')
             })
-            .match('*.{html,js,css,less,htm,tpl}', {
-                parser: fis.plugin('replace',
-                    {rules: [{search: /\/rs\//g, replace: "/"}, {search: '$$CONFIG', replace: $$config_str}]}
-                )
+        })
+    }
+
+    //处理amd
+    if (conf.amd) {
+        fis.hook('amd');
+
+        fis.match('*.js', {
+            isMod: true
+        });
+
+        fis.match('::package', {
+            postpackager: fis.plugin('loader', {
+                resourceType: 'amd', useInlineMap: false
             })
-    } else {
-        //一般模式部署规则
-        fis.set('project.files', '/*/**/*.{html,shtml}')
-            .hook('amd')
-            .match('*', {
-                deploy: [fis.plugin('skip-packed'), fis.plugin('local-deliver', {to: '../'})],
-                release: "/rd/$0"
-            })
-            //打包路径处理
-            .match('/(*)/({_,$})(**)', {
-                release: "/rd/$1/$3"
-            })
-            .match('/(*)/({_,$,})(*)/**.{js,htm,tpl}', {
-                packTo: '/$1/asset/$3.js'
-            })
-            .match('/(*)/({_,$,})(*)/**.{css,less}', {
-                packTo: '/$1/asset/$3.css'
-            })
-            .match('/3rd/**', {
-                packTo: false
-            })
-            //各类型资源处理
-            .match('*.{html,js,css,less,htm,tpl}', {
-                parser: fis.plugin('replace',
-                    {rules: [{search: /\/rs\//g, replace: "/"}, {search: '$$CONFIG', replace: $$config_str}]}
-                )
-            })
-            .match('*.html', {
-                parser: fis.plugin('extract-inline', {libs: config.libs_html || config.libs}, "append")
-            })
-            .match('*.shtml', {
-                parser: fis.plugin('extract-inline', {libs: config.libs_shtml}, "append")
-            })
-            .match('*.js', {
-                isMod: true,
-                preprocessor: fis.plugin('js-require-css')
-            })
-            .match('{global,$lib}/**.js', {
+        });
+
+        conf.not_mod_files && conf.not_mod_files.forEach(function (v) {
+            fis.match(v, {
                 isMod: false
             })
-            .match('*.{htm,tpl}', {
-                isHtmlLike: true,
-                postprocessor: fis.plugin('tpl2js'),
-                rExt: '.js'
+        });
+
+        conf.package && conf.package.forEach(function (v) {
+            fis.match(v.files, {
+                packTo: v.to
             })
-            .match('*.less', {
-                parser: fis.plugin('less-2.x', null, "append"),
-                rExt: '.css'
-            })
-            .match('::package', {
-                postpackager: fis.plugin('loader', {
-                    resourceType: 'amd', useInlineMap: false
-                })
-            });
+        })
     }
 
-    // APP模式部署规则
-    if (config.isApp || config.isRelative) {
-        fis.set('project.files', '*.{html,xml}')
-            .hook('relative')
-            .match("*", {
-                relative: true,
-                deploy: [fis.plugin('skip-packed'), fis.plugin('local-deliver', {to: '../rd'})],
-                release: "/$0"
-            })
-            .match('/(*)/({_,$})(**)', {
-                release: "/$1/$3"
-            });
+
+    //处理各类型资源
+    fis.match('*.html', {
+        parser: fis.plugin('extract-inline', {libs: conf.loader_libs.html}, "append")
+    });
+    fis.match('*.shtml', {
+        parser: fis.plugin('extract-inline', {libs: conf.loader_libs.shtml}, "append")
+    });
+    fis.match('*.js', {
+        preprocessor: fis.plugin('js-require-css')
+    });
+    fis.match('*.{htm,tpl}', {
+        isHtmlLike: true,
+        postprocessor: fis.plugin('tpl2js'),
+        rExt: '.js'
+    });
+    fis.match('*.less', {
+        parser: fis.plugin('less-2.x', null, "append"),
+        rExt: '.css'
+    });
+
+    if (conf.minimum) {
+        fis.match('*.{css,less}', {
+            optimizer: fis.plugin('clean-css', {keepSpecialComments: 0})
+        });
+        fis.match('*.js', {
+            optimizer: fis.plugin('uglify-js', {comments: false})
+        });
+        fis.match('*.{html,xml}', {
+            useHash: false
+        });
     }
 
-    //上线部署模式
-    if (config.isMin) {
-        fis.set('project.md5Length', 6)
-            .set("settings.packager.map", {useTrack: false})
-            .match("*", {
-                domain: config.cdn,
-                useHash: true
-            })
-            .match('*.{css,less}', {
-                optimizer: fis.plugin('clean-css', {keepSpecialComments: 0})
-            })
-            .match('*.js', {
-                optimizer: fis.plugin('uglify-js', {comments: false})
-            })
-            .match('*.png', {
-                optimizer: fis.plugin('png-compressor')
-            })
-            .match('*.{html,xml}', {
-                useHash: false
-            });
+    if (conf.hash) {
+        fis.match("*", {
+            useHash: true
+        });
+        fis.match('*.{html,xml}', {
+            useHash: false
+        });
     }
 
-    if (mode === 'append' && config.config)
-        config.config(fis);
+    if (conf.domain) {
+        fis.match("*", {
+            domain: conf.domain
+        });
+    }
 
     return fis;
 };
