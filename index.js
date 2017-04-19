@@ -28,20 +28,18 @@
 //         rules: [{search: /time/g, 'time'}]
 //     }],
 //     release: [{
-//         files: '*/(*).js',
-//         to: "/rd/assest/$1"
+//         files: '/(*)/({_,$})(**)',
+//         to: "/$1/$3"
 //     }],
 // }
 
 module.exports = function (config) {
     var fis = require('fis3');
-
     var _ = require('lodash');
 
     fis.require.prefixes.unshift('fis-um');
     fis.cli.name = 'fis-um';
     fis.set('project.ignore', ['/config.js']);
-
 
     var conf = {
         entry_files: '*.html',
@@ -76,18 +74,21 @@ module.exports = function (config) {
             deploy: [fis.plugin('skip-packed'), fis.plugin('local-deliver', {to: '../rd'})],
             release: "/$0"
         });
-        fis.match('/(*)/({_,$})(**)', {
-            release: "/$1/$3"
-        });
+        conf.release && conf.release.forEach(function (v) {
+            fis.match(v.files, {
+                release: v.to
+            })
+        })
     } else {
         fis.match('*', {
             deploy: [fis.plugin('skip-packed'), fis.plugin('local-deliver', {to: '../'})],
             release: "/rd/$0"
         });
-        fis.match('(*)/({_,$})(**)', {
-            release: "/rd/$1/$3"
+        conf.release && conf.release.forEach(function (v) {
+            fis.match(v.files, {
+                release: '/rd' + v.to
+            })
         })
-
     }
 
     //处理rs目录路径，code_config文件
@@ -158,6 +159,7 @@ module.exports = function (config) {
     });
 
     if (conf.minimum) {
+        fis.set("settings.packager.map", {useTrack: false});
         fis.match('*.{css,less}', {
             optimizer: fis.plugin('clean-css', {keepSpecialComments: 0})
         });
