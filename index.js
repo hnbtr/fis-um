@@ -118,6 +118,10 @@ module.exports = function (config) {
             isMod: true
         });
 
+        fis.match('*.vue', {
+            isMod: true
+        });
+
         fis.match('::package', {
             postpackager: fis.plugin('loader', {
                 resourceType: 'amd', useInlineMap: false
@@ -145,7 +149,11 @@ module.exports = function (config) {
     fis.match('*.shtml', {
         parser: fis.plugin('extract-inline', {libs: conf.loader_libs.shtml}, "append")
     });
-    fis.match('*.js', {
+    fis.match('*.vue', {
+        rExt: 'js',
+        parser: fis.plugin('extract-vue', {}, "append")
+    });
+    fis.match('*.{js,vue}', {
         preprocessor: fis.plugin('js-require-css')
     });
     fis.match('*.{htm,tpl}', {
