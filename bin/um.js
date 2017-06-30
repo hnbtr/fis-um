@@ -17,13 +17,13 @@ cli.launch({
     cwd: argv.r || argv.root,
     configPath: argv.f || argv.file
 }, function (env) {
-    var fis, config;
+    var fis, config = [];
 
     try {
         config = require(env.configPath);
     } catch (e) {
-        throw new Error('can not find config.js');
     }
+
     fis = require('../')(config);
 
     config.forEach(function (v) {

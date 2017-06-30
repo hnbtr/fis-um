@@ -112,13 +112,11 @@ module.exports = function (config) {
 
     //处理amd
     if (conf.amd) {
-        fis.hook('amd');
-
-        fis.match('*.js', {
-            isMod: true
+        fis.hook('amd', {
+            forwardDeclaration: false
         });
 
-        fis.match('*.vue', {
+        fis.match('*.{js,vue}', {
             isMod: true
         });
 
