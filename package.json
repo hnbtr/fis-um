@@ -1,6 +1,6 @@
 {
   "name": "fis-um",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "fis3 for um",
   "main": "index.js",
   "bin": {

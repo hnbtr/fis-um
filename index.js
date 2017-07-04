@@ -170,7 +170,7 @@ module.exports = function (config) {
             optimizer: fis.plugin('clean-css', {keepSpecialComments: 0})
         });
         fis.match('*.js', {
-            optimizer: fis.plugin('uglify-js', {comments: false})
+            optimizer: fis.plugin('uglify-js', {comments: false, mangle: {except: 'exports, module, require, define'}})
         });
         fis.match('*.{html,xml}', {
             useHash: false
