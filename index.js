@@ -46,6 +46,7 @@ module.exports = function (config) {
         amd: false,
         relative: false,
         minimum: false,
+        dist_path: false,
         hash: false,
         domain: false,
         loader_libs: {
@@ -67,11 +68,13 @@ module.exports = function (config) {
     fis.set('project.files', conf.entry_files);
 
     //处理部署相对路径和绝对路径
-    if (config.relative) {
-        fis.hook('relative');
+    if (conf.dist_path) {
+        if (conf.relative)
+            fis.hook('relative');
+
         fis.match("*", {
             relative: true,
-            deploy: [fis.plugin('skip-packed'), fis.plugin('local-deliver', {to: '../rd'})],
+            deploy: [fis.plugin('skip-packed'), fis.plugin('local-deliver', {to: '../' + conf.dist_path})],
             release: "/$0"
         });
         conf.release && conf.release.forEach(function (v) {
