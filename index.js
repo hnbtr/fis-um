@@ -43,10 +43,12 @@ module.exports = function (config) {
 
     var conf = {
         entry_files: '*.html',
+        path_src: 'rs',
+        path_dist: 'rd',
+        path_deploy: false,
         amd: false,
         relative: false,
         minimum: false,
-        dist_path: false,
         hash: false,
         domain: false,
         loader_libs: {
@@ -68,13 +70,13 @@ module.exports = function (config) {
     fis.set('project.files', conf.entry_files);
 
     //处理部署相对路径和绝对路径
-    if (conf.dist_path) {
+    if (conf.path_deploy || conf.relative) {
         if (conf.relative)
             fis.hook('relative');
 
         fis.match("*", {
             relative: true,
-            deploy: [fis.plugin('skip-packed'), fis.plugin('local-deliver', {to: '../' + conf.dist_path})],
+            deploy: [fis.plugin('skip-packed'), fis.plugin('local-deliver', {to: '../' + (conf.path_deploy || conf.path_dist)})],
             release: "/$0"
         });
         conf.release && conf.release.forEach(function (v) {
@@ -85,11 +87,11 @@ module.exports = function (config) {
     } else {
         fis.match('*', {
             deploy: [fis.plugin('skip-packed'), fis.plugin('local-deliver', {to: '../'})],
-            release: "/rd/$0"
+            release: "/" + conf.path_dist + "/$0"
         });
         conf.release && conf.release.forEach(function (v) {
             fis.match(v.files, {
-                release: '/rd' + v.to
+                release: '/' + conf.path_dist + v.to
             })
         })
     }
@@ -97,7 +99,7 @@ module.exports = function (config) {
     //处理rs目录路径，code_config文件
     fis.match('*.{html,js,css,less,htm,tpl}', {
         parser: fis.plugin('replace', {
-            rules: [{search: /\/rs\//g, replace: "/"}, {
+            rules: [{search: new RegExp('/' + conf.path_src + '/', 'g'), replace: "/"}, {
                 search: '$$CODE_CONFIG',
                 replace: "'" + JSON.stringify(conf.code_config || {}) + "'"
             }]
@@ -139,17 +141,18 @@ module.exports = function (config) {
             fis.match(v.files, {
                 packTo: v.to
             })
-        })
+        });
+
+        fis.match('*.html', {
+            parser: fis.plugin('extract-inline', {libs: conf.loader_libs.html}, "append")
+        });
+
+        fis.match('*.shtml', {
+            parser: fis.plugin('extract-inline', {libs: conf.loader_libs.shtml}, "append")
+        });
     }
 
-
     //处理各类型资源
-    fis.match('*.html', {
-        parser: fis.plugin('extract-inline', {libs: conf.loader_libs.html}, "append")
-    });
-    fis.match('*.shtml', {
-        parser: fis.plugin('extract-inline', {libs: conf.loader_libs.shtml}, "append")
-    });
     fis.match('*.vue', {
         rExt: 'js',
         parser: fis.plugin('extract-vue', {}, "append")
