@@ -11,7 +11,7 @@
 //     },
 //     not_mod_files: ['{global,$lib}/**.js'],
 //     loader_libs: {
-//         html: ['/3rd/global/web.js']
+//         '*.html': ['/3rd/global/web.js']
 //     },
 //     package: [{
 //         files: '/(*)/({_,$,})(*)/**.{js,htm,tpl}',
@@ -51,10 +51,7 @@ module.exports = function (config) {
         minimum: false,
         hash: false,
         domain: false,
-        loader_libs: {
-            html: [],
-            shtml: []
-        },
+        loader_libs: {},
         code_config: {},
         not_mod_files: [],
         replace: [],
@@ -143,12 +140,14 @@ module.exports = function (config) {
             })
         });
 
-        fis.match('*.html', {
-            parser: fis.plugin('extract-inline', {libs: conf.loader_libs.html}, "append")
-        });
+    }
 
-        fis.match('*.shtml', {
-            parser: fis.plugin('extract-inline', {libs: conf.loader_libs.shtml}, "append")
+    for (var loader_file in conf.loader_libs) {
+        // fis.match('*.html', {
+        //     parser: fis.plugin('extract-inline', {libs: conf.loader_libs.html}, "append")
+        // });
+        fis.match(loader_file, {
+            parser: fis.plugin('extract-inline', {libs: conf.loader_libs[loader_file]}, "append")
         });
     }
 

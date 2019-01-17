@@ -1,27 +1,34 @@
 {
   "name": "fis-um",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "description": "fis3 for um",
   "main": "index.js",
   "bin": {
     "fis-um": "bin/um.js"
   },
   "author": "yangtao",
-  "license": "MIT",
+  "homepage": "https://github.com/Adaslex/fis-um",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Adaslex/fis-um.git"
+  },
+  "bugs": {
+    "url": "https://github.com/adaslex/fis-um/issues"
+  },
   "dependencies": {
-    "liftoff": "*",
-    "minimist": "*",
-    "fis3": "*",
-    "fis3-hook-commonjs": "*",
-    "fis3-hook-amd": "*",
-    "fis3-deploy-skip-packed": "*",
-    "fis3-hook-relative": "*",
-    "fis3-postpackager-loader": "*",
-    "fis3-parser-less-2.x": "*",
-    "fis3-parser-replace": "*",
-    "fis3-preprocessor-js-require-css": "*",
-    "fis-postprocessor-tpl2js": "*",
-    "fis-parser-extract-inline": "*",
-    "fis-parser-extract-vue": "*"
+    "fis-parser-extract-inline": "^0.0.9",
+    "fis-parser-extract-vue": "^0.0.2",
+    "fis-postprocessor-tpl2js": "^0.0.4",
+    "fis3": "^3.4.41",
+    "fis3-deploy-skip-packed": "^0.0.5",
+    "fis3-hook-amd": "^0.2.2",
+    "fis3-hook-commonjs": "^0.1.31",
+    "fis3-hook-relative": "^2.0.3",
+    "fis3-parser-less-2.x": "^0.1.4",
+    "fis3-parser-replace": "^1.0.0",
+    "fis3-postpackager-loader": "^2.1.11",
+    "fis3-preprocessor-js-require-css": "^0.1.3",
+    "liftoff": "^2.5.0",
+    "minimist": "^1.2.0"
   }
 }
