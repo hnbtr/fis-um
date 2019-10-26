@@ -9,19 +9,19 @@
   "author": "yangtao",
   "license": "MIT",
   "dependencies": {
-    "liftoff": "*",
-    "minimist": "*",
-    "fis3": "*",
-    "fis3-hook-commonjs": "*",
-    "fis3-hook-amd": "*",
-    "fis3-deploy-skip-packed": "*",
-    "fis3-hook-relative": "*",
-    "fis3-postpackager-loader": "*",
-    "fis3-parser-less-2.x": "*",
-    "fis3-parser-replace": "*",
-    "fis3-preprocessor-js-require-css": "*",
-    "fis-postprocessor-tpl2js": "*",
-    "fis-parser-extract-inline": "*",
-    "fis-parser-extract-vue": "*"
+    "liftoff": "2.3.0",
+    "minimist": "1.2.0",
+    "fis3": "3.4.35",
+    "fis3-hook-commonjs": "0.1.26",
+    "fis3-hook-amd": "0.2.0",
+    "fis3-deploy-skip-packed": "0.0.5",
+    "fis3-hook-relative": "2.0.0",
+    "fis3-postpackager-loader": "2.1.4",
+    "fis3-parser-less-2.x": "0.1.4",
+    "fis3-parser-replace": "1.0.0",
+    "fis3-preprocessor-js-require-css": "0.1.1",
+    "fis-postprocessor-tpl2js": "0.0.4",
+    "fis-parser-extract-inline": "0.0.9",
+    "fis-parser-extract-vue": "0.0.2"
   }
 }
